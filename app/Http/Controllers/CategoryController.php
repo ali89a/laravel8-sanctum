@@ -19,7 +19,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $data = [
+            'category' => Category::all()
+        ];
+        return send_response('Category Retrived SuccessFul.', $data, Response::HTTP_FOUND);
     }
 
     /**
@@ -42,7 +45,7 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-           // 'slug' => 'required|string|slug|max:255|unique:categories',
+            // 'slug' => 'required|string|slug|max:255|unique:categories',
         ]);
         if ($validator->fails()) {
             return send_error('Validation Error', $validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -65,9 +68,16 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function show(Category $category)
+    public function show($id)
     {
-        //
+        $category = Category::find($id);
+        if ($category) {
+            $data = [
+                'category' => $category
+            ];
+            return send_response('Category Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
+        }
+        return send_error('Category Not Found!', null, Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -99,8 +109,13 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
-        //
+        $category = Category::find($id);
+        if ($category) {
+            $category->delete();
+            return response()->json(['success' => true, 'message' => 'Product deleted successfully.',]);
+        }
+        return response()->json(['success' => false, 'message' => 'No Product found.',]);
     }
 }
