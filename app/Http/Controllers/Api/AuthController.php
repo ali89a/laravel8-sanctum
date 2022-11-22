@@ -18,7 +18,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|confirmed|min:8',
+            'password' => 'required|min:8',
         ]);
         if ($validator->fails()) {
             return send_error('Validation Error', $validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -47,17 +47,35 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request['email'])->firstOrFail();
-
+        $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'user' => $user,
+        $data = [
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ]);
+            'userData' => $user,
+        ];
+
+        return send_response('Login Successful.', $data, Response::HTTP_CREATED);
     }
     public function me(Request $request)
     {
-        return $request->user();
+        $data = [
+            'userData' => $request->user()
+        ];
+
+        return send_response('Data Retrive Successful', $data, Response::HTTP_CREATED);
+    }
+    public function logout(Request $request)
+    {
+        $user = request()->user(); //or Auth::user()
+
+        // Revoke current user token
+        $user->tokens()->where('id', $user->currentAccessToken()->id)->delete();
+        $data = [
+            'userData' => $user,
+        ];
+
+        return send_response('You Are Successful Logout.', $data, Response::HTTP_CREATED);
     }
 }
