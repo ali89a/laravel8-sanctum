@@ -47,13 +47,15 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request['email'])->firstOrFail();
-
+        $user->tokens()->delete();
         $token = $user->createToken('auth_token')->plainTextToken;
+
         $data = [
             'access_token' => $token,
             'token_type' => 'Bearer',
             'userData' => $user,
         ];
+
         return send_response('Logged In Successful.', $data, Response::HTTP_CREATED);
     }
     public function profile(Request $request)
@@ -63,8 +65,12 @@ class AuthController extends Controller
         ];
         return send_response('User Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
     }
+
     public function logout(Request $request)
     {
+        $user = request()->user(); //or Auth::user()
+
+        // Revoke current user token
         $data = [
             'userData' => $request->user()
         ];

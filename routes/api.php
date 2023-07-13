@@ -27,5 +27,6 @@ Route::group(['prefix' => 'v1/user', 'as' => 'user.'], function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::apiResource('categories', CategoryController::class);
+        Route::post('/logout', [AuthController::class, 'logout']);
     });
 });

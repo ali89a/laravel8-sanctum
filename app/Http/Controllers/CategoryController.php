@@ -23,7 +23,7 @@ class CategoryController extends Controller
         $data = [
             'category' => CategoryResource::collection(Category::latest()->get())
         ];
-        return send_response('CategoryResource Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
+        return send_response('Category Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
     }
 
     /**
@@ -60,7 +60,7 @@ class CategoryController extends Controller
         $data = [
             'category' => $category
         ];
-        return send_response('CategoryResource Created SuccessFul.', $data, Response::HTTP_CREATED);
+        return send_response('Category Created SuccessFul.', $data, Response::HTTP_CREATED);
     }
 
     /**
@@ -76,9 +76,9 @@ class CategoryController extends Controller
             $data = [
                 'category' => new CategoryResource($category)
             ];
-            return send_response('CategoryResource Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
+            return send_response('Category Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
         }
-        return send_error('CategoryResource Not Found!', null, Response::HTTP_NOT_FOUND);
+        return send_error('Category Not Found!', null, Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -115,7 +115,7 @@ class CategoryController extends Controller
         $category->name = $input['name'];
         $category->save();
 
-        return send_response( 'CategoryResource Updated Successfully.', $category,Response::HTTP_FOUND);;
+        return send_response( 'Category Updated Successfully.', $category,Response::HTTP_FOUND);;
     }
 
     /**
@@ -129,8 +129,8 @@ class CategoryController extends Controller
         $category = Category::find($id);
         if ($category) {
             $category->delete();
-            return response()->json(['success' => true, 'message' => 'CategoryResource deleted successfully.',]);
+            return response()->json(['success' => true, 'message' => 'Category deleted successfully.',]);
         }
-        return response()->json(['success' => false, 'message' => 'No CategoryResource found.',]);
+        return response()->json(['success' => false, 'message' => 'No Category found.',]);
     }
 }
