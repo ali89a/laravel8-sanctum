@@ -24,7 +24,8 @@ Route::group(['prefix' => 'v1/user', 'as' => 'user.'], function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::group(['middleware' => ['auth:sanctum']], function () {
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/profile', [AuthController::class, 'profile']);
         Route::apiResource('categories', CategoryController::class);
     });
 });

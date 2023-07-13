@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -20,9 +21,9 @@ class CategoryController extends Controller
     public function index()
     {
         $data = [
-            'category' => Category::all()
+            'category' => CategoryResource::collection(Category::latest()->get())
         ];
-        return send_response('Category Retrived SuccessFul.', $data, Response::HTTP_FOUND);
+        return send_response('CategoryResource Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
     }
 
     /**
@@ -41,7 +42,7 @@ class CategoryController extends Controller
      * @param  \App\Http\Requests\StoreCategoryRequest  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -59,7 +60,7 @@ class CategoryController extends Controller
         $data = [
             'category' => $category
         ];
-        return send_response('Category Created SuccessFul.', $data, Response::HTTP_CREATED);
+        return send_response('CategoryResource Created SuccessFul.', $data, Response::HTTP_CREATED);
     }
 
     /**
@@ -73,11 +74,11 @@ class CategoryController extends Controller
         $category = Category::find($id);
         if ($category) {
             $data = [
-                'category' => $category
+                'category' => new CategoryResource($category)
             ];
-            return send_response('Category Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
+            return send_response('CategoryResource Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
         }
-        return send_error('Category Not Found!', null, Response::HTTP_NOT_FOUND);
+        return send_error('CategoryResource Not Found!', null, Response::HTTP_NOT_FOUND);
     }
 
     /**
@@ -98,9 +99,23 @@ class CategoryController extends Controller
      * @param  \App\Models\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCategoryRequest $request, Category $category)
+    public function update(UpdateCategoryRequest $request,Category $category)
     {
-        //
+
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
+            'name' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return send_error('Validation Error.', $validator->errors(), Response::HTTP_FOUND);;
+        }
+
+        $category->name = $input['name'];
+        $category->save();
+
+        return send_response( 'CategoryResource Updated Successfully.', $category,Response::HTTP_FOUND);;
     }
 
     /**
@@ -114,8 +129,8 @@ class CategoryController extends Controller
         $category = Category::find($id);
         if ($category) {
             $category->delete();
-            return response()->json(['success' => true, 'message' => 'Product deleted successfully.',]);
+            return response()->json(['success' => true, 'message' => 'CategoryResource deleted successfully.',]);
         }
-        return response()->json(['success' => false, 'message' => 'No Product found.',]);
+        return response()->json(['success' => false, 'message' => 'No CategoryResource found.',]);
     }
 }

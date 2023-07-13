@@ -49,15 +49,27 @@ class AuthController extends Controller
         $user = User::where('email', $request['email'])->firstOrFail();
 
         $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
+        $data = [
             'access_token' => $token,
             'token_type' => 'Bearer',
-        ]);
+            'userData' => $user,
+        ];
+        return send_response('Logged In Successful.', $data, Response::HTTP_CREATED);
     }
-    public function me(Request $request)
+    public function profile(Request $request)
     {
-        return $request->user();
+        $data = [
+            'userData' => $request->user()
+        ];
+        return send_response('User Retrieved SuccessFul.', $data, Response::HTTP_FOUND);
+    }
+    public function logout(Request $request)
+    {
+        $data = [
+            'userData' => $request->user()
+        ];
+        $request->user()->tokens()->delete();
+
+        return send_response('Logged Out Successful.', $data, Response::HTTP_FOUND);
     }
 }
