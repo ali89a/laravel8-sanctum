@@ -11,6 +11,7 @@ class Category extends Model
     protected $fillable = [
         'name',
         'created_by',
-        'slug'
+        'slug',
+        'updated_by'
     ];
 }

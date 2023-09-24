@@ -48,11 +48,12 @@ class CategoryController extends Controller
             $validated = $request->validated();
             $category = Category::create($validated);
             $data = [
-                'category' => $category
+                'category' => new CategoryResource($category)
             ];
             return response()->successResponse('Category Created SuccessFul.', $data, Response::HTTP_CREATED);
-        } catch (\Exception $e) {
-            Log::info($e->getMessage());
+        } catch (\Exception $exception) {
+            saveApiErrorLog('error', $exception);
+            Log::info($exception->getMessage());
             return response()->errorResponse();
         }
 
@@ -96,21 +97,18 @@ class CategoryController extends Controller
      */
     public function update(UpdateCategoryRequest $request, Category $category)
     {
-
-        $input = $request->all();
-
-        $validator = Validator::make($input, [
-            'name' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return send_error('Validation Error.', $validator->errors(), Response::HTTP_FOUND);;
+        try {
+            $validated = $request->validated();
+            $category->update($validated);
+            $data = [
+                'category' => new CategoryResource($category)
+            ];
+            return response()->successResponse('Category Updated SuccessFul.', $data, Response::HTTP_CREATED);
+        } catch (\Exception $exception) {
+            Log::info($exception->getMessage());
+            saveApiErrorLog('error', $exception);
+            return response()->errorResponse();
         }
-
-        $category->name = $input['name'];
-        $category->save();
-
-        return send_response('Category Updated Successfully.', $category, Response::HTTP_FOUND);;
     }
 
     /**
