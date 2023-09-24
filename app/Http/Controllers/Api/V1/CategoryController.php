@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\StoreCategoryRequest;
+use App\Http\Requests\Api\V1\UpdateCategoryRequest;
+use App\Http\Resources\V1\CategoryResource;
 use App\Models\Category;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\StoreCategoryRequest;
-use App\Http\Requests\UpdateCategoryRequest;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
-use App\Http\Resources\CategoryResource;
 
 class CategoryController extends Controller
 {
@@ -39,34 +39,29 @@ class CategoryController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \App\Http\Requests\StoreCategoryRequest  $request
+     * @param \App\Http\Requests\Api\V1\StoreCategoryRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreCategoryRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            // 'slug' => 'required|string|slug|max:255|unique:categories',
-        ]);
-        if ($validator->fails()) {
-            return send_error('Validation Error', $validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        try {
+            $validated = $request->validated();
+            $category = Category::create($validated);
+            $data = [
+                'category' => $category
+            ];
+            return response()->successResponse('Category Created SuccessFul.', $data, Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            Log::info($e->getMessage());
+            return response()->errorResponse();
         }
 
-        $category = Category::create([
-            'name' => $request['name'],
-            'slug' => Str::slug($request['name'])
-        ]);
-
-        $data = [
-            'category' => $category
-        ];
-        return send_response('Category Created SuccessFul.', $data, Response::HTTP_CREATED);
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Category  $category
+     * @param \App\Models\Category $category
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -84,7 +79,7 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Category  $category
+     * @param \App\Models\Category $category
      * @return \Illuminate\Http\Response
      */
     public function edit(Category $category)
@@ -95,11 +90,11 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateCategoryRequest  $request
-     * @param  \App\Models\Category  $category
+     * @param \App\Http\Requests\Api\V1\UpdateCategoryRequest $request
+     * @param \App\Models\Category $category
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateCategoryRequest $request,Category $category)
+    public function update(UpdateCategoryRequest $request, Category $category)
     {
 
         $input = $request->all();
@@ -108,20 +103,20 @@ class CategoryController extends Controller
             'name' => 'required',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return send_error('Validation Error.', $validator->errors(), Response::HTTP_FOUND);;
         }
 
         $category->name = $input['name'];
         $category->save();
 
-        return send_response( 'Category Updated Successfully.', $category,Response::HTTP_FOUND);;
+        return send_response('Category Updated Successfully.', $category, Response::HTTP_FOUND);;
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Category  $category
+     * @param \App\Models\Category $category
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
